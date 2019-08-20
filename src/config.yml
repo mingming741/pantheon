@@ -35,8 +35,8 @@ schemes:
     name: SCReAM
     color: pink
     marker: '1'
-  webrtc:
-    name: WebRTC media
+  cubic_p:
+    name: Cubic Plus
     color: brown
     marker: 'v'
   copa:
