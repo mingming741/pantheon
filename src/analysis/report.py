@@ -103,11 +103,14 @@ class Report(object):
             '%s'
             '\\end{verbatim}\n\n' % utils.get_sys_info())
 
+        # git summary, I comment this for easy read of report
+        '''
         desc += (
             '\\begin{verbatim}\n'
             'Git summary:\n'
             '%s'
             '\\end{verbatim}\n\n' % meta['git_summary'])
+        '''
         desc += '\\newpage\n\n'
 
         return desc
