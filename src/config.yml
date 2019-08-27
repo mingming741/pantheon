@@ -27,8 +27,8 @@ schemes:
     name: Sprout
     color: orange
     marker: 'p'
-  quic:
-    name: QUIC Cubic
+  stateful:
+    name:  Stateful
     color: magenta
     marker: '8'
   scream:

@@ -85,6 +85,9 @@ def parse_test_shared(local, remote, config_args):
             '-t', '--runtime', type=int, default=30,
             help='total runtime in seconds (default 30)')
         mode.add_argument(
+            '-s', '--flowsize', type=int, default=1000,
+            help='flow size for each flow (default 1KB)')
+        mode.add_argument(
             '--interval', type=int, default=0,
             help='interval in seconds between two flows (default 0)')
 
@@ -249,6 +252,9 @@ def parse_test():
         assert(test_config is not None)
         schemes = ' '.join([flow['scheme'] for flow in test_config['flows']])
         verify_schemes(schemes)
+
+
+    print(args)
 
     verify_test_args(args)
     utils.make_sure_dir_exists(args.data_dir)
