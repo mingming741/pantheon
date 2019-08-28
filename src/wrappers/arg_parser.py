@@ -27,6 +27,7 @@ def parse_wrapper_args(run_first):
         sender_parser.add_argument(
             'ip', metavar='IP', help='IP address of receiver')
         sender_parser.add_argument('port', help='port of receiver')
+        sender_parser.add_argument('--flowsize', help='flowsize of that flow')
     else:
         sender_parser.add_argument('port', help='port to listen on')
         receiver_parser.add_argument(

@@ -115,13 +115,14 @@ class Plot(object):
             if link_t == 'datalink':
                 ret = tunnel_results
                 duration = tunnel_results['duration'] / 1000.0
-
+                '''
                 if duration < 0.8 * self.runtime:
                     sys.stderr.write(
                         'Warning: "tunnel_graph %s" had duration %.2f seconds '
                         'but should have been around %s seconds. Ignoring this'
                         ' run.\n' % (log_path, duration, self.runtime))
                     error = True
+                '''
 
         if error:
             return None
@@ -171,13 +172,14 @@ class Plot(object):
 
         while cc_id < len(self.cc_schemes):
             cc = self.cc_schemes[cc_id]
-            perf_data[cc][run_id] = pool.apply_async(
-                self.parse_tunnel_log, args=(cc, run_id))
+            perf_data[cc][run_id] = pool.apply_async(self.parse_tunnel_log, args=(cc, run_id))
 
             run_id += 1
             if run_id > self.run_times:
                 run_id = 1
                 cc_id += 1
+
+
 
         for cc in self.cc_schemes:
             for run_id in xrange(1, 1 + self.run_times):
@@ -187,6 +189,7 @@ class Plot(object):
                     continue
 
                 stats_str = perf_data[cc][run_id]['stats']
+
                 self.update_stats_log(cc, run_id, stats_str)
                 stats[cc][run_id] = stats_str
 

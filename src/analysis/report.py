@@ -9,6 +9,7 @@ import numpy as np
 
 import arg_parser
 import context
+import tunnel_graph
 from helpers import utils
 from helpers.subprocess_wrappers import check_call, check_output
 
@@ -117,7 +118,7 @@ class Report(object):
 
     def create_table(self, data):
         align = ' c | c'
-        for data_t in ['tput', 'delay', 'loss']:
+        for data_t in ['tput', 'delay', 'loss', 'fct']:
             align += ' | ' + ' '.join(['Y' for _ in xrange(self.flows)])
         align += ' '
 
@@ -131,8 +132,9 @@ class Report(object):
             '\\begin{tabularx}{%(width)s\linewidth}{%(align)s}\n'
             '& & \\multicolumn{%(flows)d}{c|}{mean avg tput (Mbit/s)}'
             ' & \\multicolumn{%(flows)d}{c|}{mean 95th-\\%%ile delay (ms)}'
-            ' & \\multicolumn{%(flows)d}{c}{mean loss rate (\\%%)} \\\\\n'
-            'scheme & \\# runs & %(flow_cols)s & %(flow_cols)s & %(flow_cols)s'
+            ' & \\multicolumn{%(flows)d}{c}{mean loss rate (\\%%)}'
+            ' & \\multicolumn{%(flows)d}{c}{FCT (s)} \\\\\n'
+            'scheme & \\# runs & %(flow_cols)s & %(flow_cols)s & %(flow_cols)s & %(flow_cols)s'
             ' \\\\\n'
             '\\hline\n'
         ) % {'width': table_width,
@@ -142,7 +144,7 @@ class Report(object):
 
         for cc in self.cc_schemes:
             flow_data = {}
-            for data_t in ['tput', 'delay', 'loss']:
+            for data_t in ['tput', 'delay', 'loss', 'fct']:
                 flow_data[data_t] = []
                 for flow_id in xrange(1, self.flows + 1):
                     if data[cc][flow_id][data_t]:
@@ -153,12 +155,13 @@ class Report(object):
 
             table += (
                 '%(name)s & %(valid_runs)s & %(flow_tputs)s & '
-                '%(flow_delays)s & %(flow_losses)s \\\\\n'
+                '%(flow_delays)s & %(flow_losses)s & %(flow_fct)s\\\\\n'
             ) % {'name': data[cc]['name'],
                  'valid_runs': data[cc]['valid_runs'],
                  'flow_tputs': ' & '.join(flow_data['tput']),
                  'flow_delays': ' & '.join(flow_data['delay']),
-                 'flow_losses': ' & '.join(flow_data['loss'])}
+                 'flow_losses': ' & '.join(flow_data['loss']),
+                 'flow_fct': ' & '.join(flow_data['fct'])}
 
         table += (
             '\\end{tabularx}\n'
@@ -174,6 +177,7 @@ class Report(object):
         re_delay = lambda x: re.match(
             r'95th percentile per-packet one-way delay: (.*?) ms', x)
         re_loss = lambda x: re.match(r'Loss rate: (.*?)%', x)
+        re_fct = lambda x: re.match(r'Flow Completion Time: (.*?) s', x)
 
         for cc in self.cc_schemes:
             data[cc] = {}
@@ -189,6 +193,7 @@ class Report(object):
                 data[cc][flow_id]['tput'] = []
                 data[cc][flow_id]['delay'] = []
                 data[cc][flow_id]['loss'] = []
+                data[cc][flow_id]['fct'] = []
 
             for run_id in xrange(1, 1 + self.run_times):
                 fname = '%s_stats_run%s.log' % (cc, run_id)
@@ -226,6 +231,11 @@ class Report(object):
                         if ret:
                             ret = float(ret.group(1))
                             data[cc][flow_id]['loss'].append(ret)
+
+                        ret = re_fct(stats_log.readline())
+                        if ret:
+                            ret = float(ret.group(1))
+                            data[cc][flow_id]['fct'].append(ret)
 
                         if flow_id < self.flows:
                             flow_id += 1

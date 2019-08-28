@@ -35,8 +35,10 @@ def main():
         return
 
     if args.option == 'sender':
-        cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', args.port,
-               '-t', '75']
+        if args.flowsize:
+            cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', args.port, '-n', args.flowsize]
+        else:
+            cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', args.port, '-t', '75']
         check_call(cmd)
         return
 

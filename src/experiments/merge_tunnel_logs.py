@@ -173,6 +173,7 @@ def push_to_heap(heap, index, log_file, init_ts_delta):
 
 
 def multiple_mode(args):
+    print(args)
     # open log files
     link_log = None
     if args.link_log:

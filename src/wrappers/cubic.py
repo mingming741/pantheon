@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from subprocess import check_call
-
+import sys
 import arg_parser
 
 
@@ -18,8 +18,10 @@ def main():
         return
 
     if args.option == 'sender':
-        cmd = ['iperf', '-Z', 'cubic', '-c', args.ip, '-p', args.port,
-               '-t', '75']
+        if args.flowsize:
+            cmd = ['iperf', '-Z', 'cubic', '-c', args.ip, '-p', args.port, '-n', args.flowsize]
+        else:
+            cmd = ['iperf', '-Z', 'cubic', '-c', args.ip, '-p', args.port, '-t', '75']
         check_call(cmd)
         return
 

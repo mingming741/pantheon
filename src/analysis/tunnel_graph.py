@@ -29,6 +29,8 @@ class TunnelGraph(object):
         tunlog = open(self.tunnel_log)
 
         self.flows = {}
+        self.flow_start_time = {}
+        self.flow_end_time = {}
         first_ts = None
         capacities = {}
 
@@ -82,6 +84,11 @@ class TunnelGraph(object):
                     flow_id = 0
 
                 self.flows[flow_id] = True
+
+                # Record time
+                if flow_id not in self.flow_start_time.keys():
+                    self.flow_start_time[flow_id] = ts
+                self.flow_end_time[flow_id] = ts
 
                 if flow_id not in arrivals:
                     arrivals[flow_id] = {}
@@ -374,6 +381,9 @@ class TunnelGraph(object):
         if self.total_loss_rate is not None:
             ret += 'Loss rate: %.2f%%\n' % (self.total_loss_rate * 100.0)
 
+        if self.total_duration is not None:
+            ret += 'Flow Completion Time: %.4f\n' % (self.total_duration / 1000.0)
+
         for flow_id in self.flows:
             ret += '-- Flow %d:\n' % flow_id
 
@@ -390,6 +400,10 @@ class TunnelGraph(object):
             if (flow_id in self.loss_rate and
                     self.loss_rate[flow_id] is not None):
                 ret += 'Loss rate: %.2f%%\n' % (self.loss_rate[flow_id] * 100.)
+
+            if (flow_id in self.flow_start_time and flow_id in self.flow_end_time):
+                fct = self.flow_end_time[flow_id] - self.flow_start_time[flow_id]
+                ret += 'Flow Completion Time: %.4f s\n' % (fct / 1000.)
 
         return ret
 

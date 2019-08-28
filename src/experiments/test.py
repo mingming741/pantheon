@@ -26,6 +26,8 @@ Flow = namedtuple('Flow', ['cc', # replace self.cc
 
 class Test(object):
     def __init__(self, args, run_id, cc):
+        print(args)
+
         self.mode = args.mode
         self.run_id = run_id
         self.cc = cc
@@ -34,6 +36,7 @@ class Test(object):
         # shared arguments between local and remote modes
         self.flows = args.flows
         self.runtime = args.runtime
+        self.flowsize = args.flowsize
         self.interval = args.interval
         self.run_times = args.run_times
 
@@ -424,8 +427,11 @@ class Test(object):
 
             first_cmd = 'tunnel %s python %s receiver %s\n' % (
                 tun_id, first_src, port)
-            second_cmd = 'tunnel %s python %s sender %s %s\n' % (
-                tun_id, second_src, recv_pri_ip, port)
+
+            if self.flowsize > 0:
+                second_cmd = 'tunnel %s python %s sender %s %s --flowsize %s\n' % (tun_id, second_src, recv_pri_ip, port, self.flowsize)
+            else:
+                second_cmd = 'tunnel %s python %s sender %s %s\n' % (tun_id, second_src, recv_pri_ip, port)
 
             recv_manager.stdin.write(first_cmd)
             recv_manager.stdin.flush()
