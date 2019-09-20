@@ -5,6 +5,7 @@ from subprocess import check_call
 
 import arg_parser
 import context
+import sys
 
 
 def main():
@@ -30,10 +31,16 @@ def main():
 
     if args.option == 'sender':
         rat_file = path.join(cc_repo, 'RemyCC-2014-100x.dna')
-        sh_cmd = (
-            'export MIN_RTT=1000000 && %s serverip=%s serverport=%s if=%s '
-            'offduration=1 onduration=1000000 traffic_params=deterministic,'
-            'num_cycles=1' % (send_src, args.ip, args.port, rat_file))
+        if args.flowsize:
+            sh_cmd = ('export MIN_RTT=1000000 && %s serverip=%s serverport=%s if=%s '
+                'offduration=0 onduration=%s traffic_params=byte_switched,deterministic,'
+                'num_cycles=1' % (send_src, args.ip, args.port, rat_file, args.flowsize))
+        else:
+            sh_cmd = ('export MIN_RTT=1000000 && %s serverip=%s serverport=%s if=%s '
+                'offduration=1 onduration=1000000 traffic_params=deterministic,'
+                'num_cycles=1' % (send_src, args.ip, args.port, rat_file))
+        sys.stderr.write(str(sh_cmd))
+        sys.stderr.write('\n')
         check_call(sh_cmd, shell=True)
         return
 

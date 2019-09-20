@@ -6,6 +6,7 @@ from subprocess import check_call
 
 import arg_parser
 import context
+import sys
 
 
 def main(delta_conf):
@@ -30,11 +31,19 @@ def main(delta_conf):
         return
 
     if args.option == 'sender':
-        sh_cmd = (
-            'export MIN_RTT=1000000 && %s serverip=%s serverport=%s '
-            'offduration=1 onduration=1000000 traffic_params=deterministic,'
-            'num_cycles=1 cctype=markovian delta_conf=%s'
-            % (send_src, args.ip, args.port, delta_conf))
+        if args.flowsize:
+            sh_cmd = ('export MIN_RTT=1000000 && %s serverip=%s serverport=%s '
+                'offduration=0 onduration=%s traffic_params=byte_switched,deterministic,'
+                'num_cycles=1 cctype=markovian delta_conf=%s'
+                % (send_src, args.ip, args.port, args.flowsize, delta_conf))
+        else:
+            sh_cmd = ('export MIN_RTT=1000000 && %s serverip=%s serverport=%s '
+                'offduration=1 onduration=1000000 traffic_params=deterministic,'
+                'num_cycles=1 cctype=markovian delta_conf=%s'
+                % (send_src, args.ip, args.port, delta_conf))
+
+        sys.stderr.write(str(sh_cmd))
+        sys.stderr.write('\n')
 
         with open(os.devnull, 'w') as devnull:
             # suppress debugging output to stdout

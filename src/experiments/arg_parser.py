@@ -187,8 +187,6 @@ def verify_test_args(args):
         if (args.flows - 1) * args.interval > args.runtime:
             sys.exit('interval time between flows is too long to be '
                      'fit in runtime')
-    if args.flowsize >= 0:
-        args.runtime = 15
 
 def parse_test_config(test_config, local, remote):
     # Check config file has atleast a test-name and a description of flows
