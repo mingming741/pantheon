@@ -6,6 +6,7 @@ from subprocess import check_call
 
 import arg_parser
 import context
+import sys
 from helpers import utils
 
 
@@ -21,20 +22,28 @@ def main():
     if args.option == 'setup':
         # apply patch to reduce MTU size
         utils.apply_patch('pcc.patch', cc_repo)
-
         check_call(['make'], cwd=recv_dir)
         check_call(['make'], cwd=send_dir)
         return
 
     if args.option == 'receiver':
         os.environ['LD_LIBRARY_PATH'] = path.join(recv_dir, 'src')
+        sys.stderr.write(path.join(recv_dir, 'src'))
+        sys.stderr.write('\n')
         cmd = [recv_src, args.port]
+        sys.stderr.write(str(cmd))
+        sys.stderr.write('\n')
         check_call(cmd)
         return
 
     if args.option == 'sender':
         os.environ['LD_LIBRARY_PATH'] = path.join(send_dir, 'src')
-        cmd = [send_src, args.ip, args.port]
+        if args.flowsize:
+            cmd = [send_src, args.ip, args.port, args.flowsize]
+        else:
+            cmd = [send_src, args.ip, args.port]
+        sys.stderr.write(str(cmd))
+        sys.stderr.write('\n')
         # suppress debugging output to stderr
         with open(os.devnull, 'w') as devnull:
             check_call(cmd, stderr=devnull)
